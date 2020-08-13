@@ -1,0 +1,513 @@
+<template>
+    <div class="item-container">
+        <div class="item-content">
+            <div class="div1">
+                <text class="div1text">风格选择</text>
+                <image src="/Common/imgs/fangao.jpg" class="div1img"></image>
+                <image src="/Common/imgs/bijiasuo.jpg" class="div1img"></image>
+                <image src="/Common/imgs/dafenqi.jpg" class="div1img"></image>
+            </div>
+            <div class="div2">
+                <div if="{{huabanshow === 0}}">
+                    <image if="{{rmBgimg === ''}}" class="image" src="{{userImg}}"></image>
+                    <image else="{{rmBgimg !== ''}}" class="image" src="{{rmBgimg}}"></image>
+                </div>
+                <div if="{{huabanshow === 1}}">
+                    <canvas id="imgCanvas" class="touch-region" ontouchmove="move"></canvas>
+                </div>
+            </div>
+            <div class="item-title">
+                <text class="div1text">生成结果</text>
+            </div>
+            <div class="div3">
+                <image src="{{uriImg}}" style="width: 600px;height: 450px;"></image>
+            </div>
+            <div class="doc-row">
+                <input class="homebtn btnfont color1" type="button" value="选择图片" onclick="chooseImg" />
+                <input class="homebtn btnfont color1" type="button" value="去除背景" onclick="rmBackgroud" />
+                <input class="homebtn btnfont color1" type="button" value="更换背景" onclick="changeBg" />
+
+            </div>
+            <div class="doc-row">
+                <input class="homebtn1 color3" type="button" value="转换风格" onclick="changeFg" />
+                <input class="homebtn1 color3" type="button" value="加载简笔画" onclick="onloadImg" />
+            </div>
+            <!-- <image class="image" src="internal://files/images/out.jpg"></image> -->
+            <!-- <div class="doc-row">
+               
+            </div> -->
+
+        </div>
+
+    </div>
+</template>
+<script>
+    import media from '@system.media';
+    import prompt from '@system.prompt';
+    import image from '@system.image';
+    import request from '@system.request';
+    import file from '@system.file';
+
+
+    var uImg = '';
+    var imageForm = "";
+    var databuffer = [];
+    var outImg = '';
+    var flag = 0;
+    var scale, bgImg;
+    var oldscale = 1;
+    var oldistance = 0;
+    var zhuanhuanImg = '';
+    
+    module.exports = {
+        data: {
+            userImg: '',
+            rmBgimg: '',
+            huabanshow: 0,
+            uriImg: '',
+            catImg: ''
+            // zhuanhuanImg:''
+        },
+        onInit() {
+
+            this.$page.setTitleBar({
+                text: '主页',
+                textcolor: '#770000',
+                backgroundColor: '#434343',    //背景颜色
+                backgroundOpacity: '0.8',      //背景透明度
+                menu: false,
+            })
+        },
+
+        chooseImg() {
+            let that = this;
+
+            that.huabanshow = 0;
+            that.rmBgimg = '';
+            that.userImg = '';
+
+            media.pickImage({
+                success: function (res) {
+                    // that.userImg = res.uri;
+                    console.log('handling success: ' + res.uri);
+                    // uImg = res.uri;
+                    image.editImage({
+                        uri: res.uri,
+                        success: function (data) {
+                            that.userImg = data.uri;
+                            uImg = data.uri;
+                            console.log('edit成功' + data.uri);
+                            prompt.showToast({
+                                message: '选择成功',
+                                duration: 2000,
+                                gravity: 'center'
+                            })
+                        },
+                        fail: function (data, code) {
+                            console.log('edit失败' + code + data);
+
+                        }
+                    })
+                    // image.compressImage({
+                    //     uri: uImg,
+                    //     quality: 80,
+                    //     ratio: 1,
+                    //     format: 'JPEG',
+                    //     success: function (data) {
+                    //         console.log('压缩成功' + data.uri);
+                    // uImg = data.uri;         
+                    //     },
+                    //     fail: function (data, code) {
+                    //         console.log('压缩 fail, code = ' + code);
+                    //     }
+                    // })
+                },
+                fail: function (data) {
+                    console.log('handling fail: code' + data.code);
+                }
+            })
+        },
+        rmBackgroud() {
+            const self = this;
+
+            if (uImg === '') {
+                prompt.showToast({
+                    message: '请选择一张图片',
+                    duration: 2000,
+                    gravity: 'center'
+                })
+            } else {
+                request.upload({
+                    url: 'https://api-cn.faceplusplus.com/humanbodypp/v2/segment',
+                    header: { 'content-type': 'multipart/form-data' },
+                    data: {
+                        "api_key": "Nk9SLtxJM14-5V40W4JPoeEvOIeVJUxX",
+                        "api_secret": "G93BbLCZU4onCCl0jPBvSJPfUBzo3qIh",
+                        "return_grayscale": 0
+                    },
+                    method: "POST",
+                    files: [{
+                        uri: uImg,
+                        name: 'image_file',
+                        type: 'multipart/form-data'
+                    }],
+                    success: function (res) {
+                        // console.log("success upload"+res.data);
+                        var data = JSON.parse(res.data)
+                        // console.log(data.body_image);
+                        console.log(data.image_id);
+                        if (uImg.indexOf(".jpg")) { imageForm = "jpg" }
+                        else if (uImg.indexOf(".png")) { imageForm = "png" }
+                        else if (uImg.indexOf(".jpeg")) { imageForm = "jpeg" }
+                        if (data.image_id === undefined) {
+                            prompt.showToast({
+                                message: '请稍等~',
+                                duration: 5000,
+                                image: '/Common/img/wait.png',
+                                gravity: 'center'
+                            })
+                        } else {
+                            self.rmBgimg = "data:image/" + imageForm + ";base64," + data.body_image;
+                            databuffer = Buffer.from(data.body_image, 'base64');
+                            // console.log(databuffer);
+                            flag = 1;
+                        }
+
+                        if (flag === 1) {
+                            var time = Date.parse(new Date());
+                            time = time / 1000;
+                            file.writeArrayBuffer({
+                                uri: 'internal://files/images/out' + time + '.jpg',//wait for a minute
+                                buffer: databuffer,
+                                success: function () {
+                                    console.log('success rm background');
+                                    // flag = 1;
+                                    outImg = 'internal://files/images/out' + time + '.jpg';
+                                    console.log(outImg);
+
+                                },
+                                fail: function (data, code) {
+                                    console.log('faid' + data + code);
+                                }
+                            })
+                        }
+
+                    },
+                    fail: function (data, code) {
+                        console.log("failed" + data + code);
+                    }
+                })
+            }
+
+        },
+        changeBg() {
+            const self = this;
+
+            if (outImg === '') {
+                prompt.showToast({
+                    message: '请按顺序操作',
+                    duration: 2000,
+                    gravity: 'center'
+                })
+            } else {
+                self.huabanshow = 1;
+                image.getImageInfo({
+                    uri: outImg,
+                    // uri: '/Common/logo.png',
+                    success: function (data) {
+                        var homecvs = self.$element("imgCanvas");
+                        var ctx = homecvs.getContext("2d");
+                        console.log(data.uri + data.width + data.height + data.size);
+                        const wuBgimg = new Image();
+                        wuBgimg.src = outImg;
+                        // wuBgimg.src = '/Common/logo.png';
+                        wuBgimg.onload = function () {
+                            setTimeout(() => {
+                                
+                                ctx.drawImage(wuBgimg, 115, 150, data.width, data.height);
+                                console.log('人像加载成功');
+                                // ctx.drawImage('/Common/imgs/cat.png',300,300,150,150)
+                            }, 2500);
+                            setTimeout(() => {
+                                ctx.drawImage('/Common/imgs/cat.png',350,300,150,150)
+                            }, 8000);
+                            prompt.showContextMenu({
+                                itemList: ['天空', '山川', '院子', '森林', '轮船', '梅花'],
+                                itemColor: '#ff33ff',
+                                success: function (data) {
+                                    console.log("handling callback" + data.index);
+                                    var newBgimg = new Image();
+                                    newBgimg.src = '/Common/img/pic' + data.index + '.webp';
+                                    bgImg = newBgimg.src;
+                                    newBgimg.onload = function () {
+                                        console.log("背景图片加载成功");
+                                        ctx.globalCompositeOperation = 'source-over';
+                                        ctx.drawImage(newBgimg, 0, 0, 680, 450);
+                                    }
+                                    newBgimg.onerror = function () {
+                                        console.log("背景图片加载失败");
+                                    }
+                                },
+                                fail: function (data, code) {
+                                    console.log('handling fail, code = ' + code);
+                                },
+                                cancel: function () {
+                                    console.log('user cancel=');
+                                }
+                            })
+
+                        }
+                        wuBgimg.onerror = function () {
+                            console.log('人像加载失败');
+                        }
+
+                    }
+                })
+            }
+
+        },
+        move(e) {
+            const self = this;
+            let ax, ay, x, y;
+            var test = self.$element('imgCanvas');
+            var ctx = test.getContext('2d');
+            const img = new Image();
+            img.src = outImg;
+            x = e.changedTouches[0].clientX;
+            y = e.changedTouches[0].clientY;
+            console.log('x: ' + x + 'y: ' + y);
+            (x < 165) ? ax = 135 : ax = 555;
+            (y < 165) ? ay = 165 : ay = 285;
+            (x < 535 && x > 165) ? x : x = ax;
+            (y > 165 && y < 285) ? y : y = ay;
+            console.log('x:' + x + 'y:' + y);
+            const bg = new Image();
+            bg.src = bgImg;
+            img.onload = () => {
+                if (e.touches.length === 1) {
+                    ctx.clearRect(0, 0, 680, 450);
+                    bg.onload = () => {
+                        // ctx.globalCompositeOperation = 'source-over';
+                        ctx.drawImage(bg, 0, 0, 680, 450);
+                        ctx.drawImage(img, x - 165 * scale, y - 165 * scale, 333 * scale, 333 * scale);
+                    }
+                    // ctx.drawImage(img, x-100, y-100,300 ,300);
+                    // console.log('drawing' + e.touches.length);
+                    // console.log(scale);
+                }
+                else if (e.touches.length === 2) {
+                    var xMove = e.changedTouches[1].clientX - e.changedTouches[0].clientX;
+                    var yMove = e.changedTouches[1].clientY - e.changedTouches[0].clientY;
+                    var distance = Math.sqrt(xMove * xMove + yMove * yMove);
+                    // var oldscale = 1; 
+                    let diffdistance = distance - oldistance;
+                    console.log(distance + 'old' + oldistance);
+                    scale = oldscale + 0.005 * diffdistance;
+                    oldistance = distance;
+                    if (scale > 2.5) {
+                        return;
+                    } else if (scale < 0.5) {
+                        return;
+                    }
+                    ctx.clearRect(0, 0, 680, 450);
+                    bg.onload = () => {
+                        ctx.drawImage(bg, 0, 0, 680, 450);
+                        ctx.drawImage(img, x - (165 * scale), y - (165 * scale), 333 * scale, 333 * scale)
+                    }
+
+                    oldscale = scale;
+                    console.log(scale);
+                }
+                else {
+                    return;
+                }
+
+            }
+
+            img.onerror = () => {
+                console.log('what a shit world');
+            }
+        },
+        onloadImg() {
+            // const self = this;
+            // self.catImg= '/Common/imgs/cat.png';
+        },
+        changeFg() {
+            const self = this;
+            var test = self.$element('imgCanvas');
+            if (zhuanhuanImg === '') {
+                    test.toTempFilePath({
+                    x: 0,
+                    y: 0,
+                    width: 680,
+                    height: 450,
+                    destWidth: 680,
+                    destHeight: 450,
+                    fileType: 'jpg',
+                    success(data) {
+                        zhuanhuanImg = data.uri;
+                        console.log(`handling success${data.uri}`);
+                        console.log(`Canvas toTempFilePath success ${data.tempFilePath}`)
+
+                    },
+                    fail: (data) => {
+                        console.log('Canvas toTempFilePath data =' + data);
+                    }
+                })
+                console.log('为空');
+            } else {
+                request.upload({
+                    url: 'http://192.168.1.106:5000/photo2',
+                    // header: { 'content-type': 'multipart/form-data' },
+                    // data: {},
+                    method: "POST",
+                    files: [{
+                        uri: zhuanhuanImg,
+                        name: 'file'
+                    }],
+                    success: function (res) {
+                        self.uriImg = res.data;
+                        console.log('success' + res.data);
+                    },
+                    fail: function (data, code) {
+                        console.log('fail' + data + code);
+                    }
+                })
+            }
+            //  request.upload({
+            //         url: 'http://192.168.1.106:5000/photo2',
+            //         // header: { 'content-type': 'multipart/form-data' },
+            //         // data: {},
+            //         method: "POST",
+            //         files: [{
+            //             uri: '/Common/me.jpg',
+            //             name: 'file'
+            //         }],
+            //         success: function (res) {
+            //             self.uriImg = res.data;
+            //             console.log('success' + res.data);
+            //         },
+            //         fail: function (data, code) {
+            //             console.log('fail' + data + code);
+            //         }
+            //     })
+
+        }
+    }
+</script>
+<style>
+    @import "../Common/css/common.css";
+    .item-title {
+        width: 100%;
+        height: 37px;
+        background-color: #ffffff;
+        color: #ffffff;
+    }
+    .div1 {
+        height: 100px;
+        width: 100%;
+        background-color: #ffffff;
+        margin-bottom: 20px;
+    }
+    .div1text {
+        font-size: 35px;
+        font-weight: bolder;
+        font-family: sans-serif;
+        margin-right: 50px;
+    }
+    .div1img {
+        height: 100px;
+        width: 100px;
+        margin-right: 15px;
+    }
+    .div2 {
+        height: 450px;
+        width: 100%;
+        background-color: #f7f7f7;
+        border: 3px solid rgba(134, 134, 134, 0.3);
+    }
+    .div3 {
+        height: 450px;
+        width: 100%;
+        background-color: #ffffff;
+        margin-bottom: 20px;
+        border: 3px solid rgba(134, 134, 134, 0.3);
+        justify-content: center;
+    }
+    .image {
+        margin: 10px 0;
+        width: 680px;
+        height: 450px;
+        resize-mode: contain;
+    }
+    .item-container {
+        height: 100%;
+        margin-top: 5px;
+        margin-right: 20px;
+        margin-left: 20px;
+        flex-direction: column;
+    }
+    .item-content {
+        flex-direction: column;
+        background-color: #ffffff;
+        padding: 10px;
+        margin-bottom: 20px;
+    }
+    .doc-row {
+        justify-content: center;
+        margin-left: 30px;
+        margin-right: 30px;
+    }
+    .homebtn {
+        flex: 1;
+        padding-top: 5px;
+        padding-right: 10px;
+        padding-bottom: 5px;
+        padding-left: 10px;
+        margin-bottom: 10px;
+        margin-left: 20px;
+        border-radius: 10px;
+        font-size: 30px;
+        color: #ffffff;
+    }
+    .homebtn1 {
+        /* flex: 1; */
+        margin-top: 30px;
+        margin-left: 40px;
+        width: 150px;
+        height: 150px;
+        border-radius: 75px;
+        font-size: 30px;
+        color: #ffffff;
+    }
+    .btnfont {
+        font-family: sans-serif;
+        font-weight: bolder;
+    }
+    .touch-region {
+        margin-top: 10px;
+        margin-bottom: 10px;
+        width: 680px;
+        height: 450px;
+        background-color: #ffffff;
+        justify-content: center;
+    }
+    .color1 {
+        background-color: #09ba07;
+    }
+    .color1:active {
+        background-color: #c3f1c3;
+    }
+    .color2 {
+        background-color: #f76160;
+    }
+    .color2:active {
+        background-color: #c55756;
+    }
+    .color3 {
+        background-color: #0faeff;
+    }
+    .color3:active {
+        background-color: #9fcef0;
+    }
+</style>

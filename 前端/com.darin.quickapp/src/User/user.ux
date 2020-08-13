@@ -1,0 +1,96 @@
+<template>
+    <div class="me">
+        <div class="me">
+            <stack class="header">
+                <image class="avtar" src="/Common/me.jpg"></image>
+                <text class="username">欢迎使用图片七巧板</text>
+            </stack>
+            <div class="item-title"></div>
+            <text class="item border-bottom" onclick="openView('HistoryPicList')">历史创作图片</text>
+            <text class="item border-bottom" onclick="openView('CucaiStore')">素材库</text>
+            <div class="item-title"></div>
+            <text class="item border-bottom" onclick="aboutUs">关于</text>
+            <div class="item-title"></div>
+            <text class="item border-bottom" onclick="recommend">提出建议</text>
+        </div>
+
+    </div>
+</template>
+<script>
+    module.exports = {
+        data: {
+
+        },
+        onInit() {
+            this.$page.setTitleBar({ backgroundOpacity: '0.8', })
+        },
+        openView(uri) {
+            if (uri === 'about') {
+                return
+            }
+            this.$app.$def.router.push({ uri: uri })
+        },
+        aboutUs() {
+
+        },
+        recommend() {
+
+        }
+    }
+</script>
+<style>
+    .me-page{
+        height: 100%;
+        margin-top: 20px;
+        margin-right: 60px;
+        margin-left: 60px;
+        flex-direction: column;
+    }
+    .me {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .header {
+        width: 100%;
+        height: 400px;
+        justify-content: center;
+    }
+
+    .avtar {
+        width: 700px;
+        height: 700px;
+    }
+
+    .username {
+        width: 100%;
+        height: 100%;
+        text-align: center;
+        font-size: 56px;
+        color: #ff0000;
+    }
+
+    .header-email {
+        height: 60px;
+        color: #999999;
+    }
+
+    .item-title {
+        width: 100%;
+        height: 30px;
+        background-color: #dddddd;
+        color: #ffffff;
+    }
+
+    .item {
+        width: 100%;
+        padding: 20px;
+        padding-top: 30px;
+        padding-bottom: 30px;
+    }
+
+    .border-bottom {
+        border-bottom-width: 1px;
+        border-bottom-color: #eeeeee;
+    }
+</style>

@@ -1,0 +1,59 @@
+<template>
+  <!-- Only one root node is allowed in template. -->
+  <div class="container">
+    <div class="div1">
+      <image src="/Common/logo1.png" style="width: 600px;height:600px;"></image>
+    </div>
+    <text class="title">
+      {{title}}
+    </text>
+    <input class="btn" type="button" value="Let's begin" onclick="routehome" />
+  </div>
+</template>
+
+<style>
+  .container {
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+  .div1 {
+    margin-top: -200px;
+  }
+  .title {
+    font-size: 55px;
+  }
+  .btn {
+    width: 550px;
+    height: 86px;
+    margin-top: 75px;
+    border-radius: 43px;
+    background-color: #09ba07;
+    font-size: 40px;
+    color: #ffffff;
+  }
+</style>
+
+<script>
+  import router from '@system.router';
+  module.exports = {
+    data: {
+      title: 'Welcome to Picture Jigsaw'
+    },
+    onInit() {
+      this.$page.setTitleBar({
+        text: '图片七巧板',
+        textColor: '#ffffff',
+        backgroundColor: '#007DFF',
+        backgroundOpacity: 0.5,
+        menu: true
+      })
+    },
+    routehome() {
+      router.push({
+        uri: '/Tabbar',
+
+      })
+    }
+  }
+</script>

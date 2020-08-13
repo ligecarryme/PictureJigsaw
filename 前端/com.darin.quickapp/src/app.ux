@@ -1,0 +1,12 @@
+<script>
+  // const injectRet = Object.getPrototypeOf(global) || global
+  // injectRet.regeneratorRuntime = require('@babel/runtime/regenerator');
+  module.exports = {
+    onCreate() {
+      console.info('Application onCreate');
+    },
+    onDestroy() {
+      console.info('Application onDestroy');
+    }
+  }
+</script>

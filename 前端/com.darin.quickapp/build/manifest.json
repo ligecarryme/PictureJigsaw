@@ -1,0 +1,74 @@
+{
+  "package": "com.darin.quickapp",
+  "name": "picture jigsaw",
+  "versionName": "1.0.0",
+  "versionCode": 1,
+  "icon": "/Common/logo.png",
+  "minPlatformVersion": 1040,
+  "features": [
+    {
+      "name": "system.router"
+    },
+    {
+      "name": "system.prompt"
+    },
+    {
+      "name": "system.media"
+    },
+    {
+      "name": "system.image"
+    },
+    {
+      "name": "system.request"
+    },
+    {
+      "name": "system.fetch"
+    },
+    {
+      "name": "system.file"
+    }
+  ],
+  "permissions": [
+    {
+      "origin": "*"
+    }
+  ],
+  "config": {},
+  "router": {
+    "entry": "Hello",
+    "pages": {
+      "Hello": {
+        "component": "hello"
+      },
+      "Tabbar": {
+        "component": "tabbar"
+      },
+      "Home": {
+        "component": "home"
+      },
+      "Feature": {
+        "component": "feature"
+      },
+      "User": {
+        "component": "user"
+      }
+    }
+  },
+  "display": {
+    "pages": {
+      "Hello": {
+        "titleBarText": "欢迎"
+      },
+      "Home": {
+        "titleBarText": "主页"
+      },
+      "Feature": {
+        "titleBarText": "功能"
+      },
+      "User": {
+        "titleBarText": "用户"
+      }
+    }
+  },
+  "debugable": true
+}

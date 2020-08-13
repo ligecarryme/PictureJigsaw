@@ -1,0 +1,221 @@
+<template>
+    <div class="item-container">
+        <div class="item-content">
+            <!-- <canvas id="testcvs" class="touch-region" onlongtap="longpress" ontouchmove="move"></canvas> -->
+            <text class="div1text">画板</text>
+            <canvas id="featurecvs" class="touch-region" ontouchstart="touchStart" ontouchmove="touchMove" ontouchend="touchEnd"></canvas>
+            <text class="div1text">生成结果</text>
+            <div class="div3">
+                <image src="{{uriImg}}" ></image>
+            </div>
+            <div class="doc-row">
+                <input class="homebtn color1" type="button" value="橡皮" onclick="fallBack" />
+                <input class="homebtn color1" type="button" value="清除" onclick="clearAll" />
+            </div>
+            <div class="doc-row">
+                <input class="homebtn1 color3" type="button" value="转换图片" onclick="changeImg" />
+            </div>
+        </div>
+    </div>
+</template>
+<script>
+    import request from '@system.request';
+
+    // var zhuanhuanImg = ''
+    module.exports = {
+        data: {
+            startX: 0,
+            startY: 0,
+            xiangpi: false,
+            uriImg: ''
+        },
+        onInit() {
+            this.$page.setTitleBar({ backgroundOpacity: '0.8' });
+        },
+        onCreate() {
+            this.$element('featurecvs')
+        },
+        touchStart(e) {
+            const self = this;
+            var feacanvas = self.$element('featurecvs');
+            var ctx = feacanvas.getContext('2d');
+            console.log("move event touches:" + JSON.stringify(e.touches))
+            console.log("move event changedTouches:" + JSON.stringify(e.changedTouches))
+            self.startX = e.changedTouches[0].clientX - 40;
+            self.startY = e.changedTouches[0].clientY - 15;
+            if (self.xiangpi) {
+                ctx.strokeStyle = "#ffffff";
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+                ctx.lineWidth = 32;
+                ctx.save();
+                ctx.beginPath();
+                ctx.arc(self.startX, self.startY, 15, 0, 2 * Math.PI, true);
+                ctx.fill();
+                ctx.restore();
+            } else {
+                ctx.strokeStyle = "#000000";
+                ctx.lineCap = 'round';
+                ctx.lineWidth = 5;
+                ctx.beginPath();
+            }
+
+            // ctx.moveTo(20,20);
+            // ctx.lineTo(20,200);
+            // ctx.stroke();
+
+        },
+        touchMove(e) {
+            const self = this;
+            var feacanvas = self.$element('featurecvs');
+            var ctx = feacanvas.getContext('2d');
+            let startX1 = e.changedTouches[0].clientX - 40;
+            let startY1 = e.changedTouches[0].clientY - 15;
+            console.log('X1:' + startX1 + 'Y1:' + startY1);
+            if (self.xiangpi) {
+                ctx.save();
+                ctx.moveTo(self.startX, self.startY);
+                ctx.lineTo(startX1, startY1)
+                ctx.stroke();
+                ctx.restore();
+            } else {
+                ctx.moveTo(self.startX, self.startY);
+                ctx.lineTo(startX1, startY1);
+                ctx.stroke();
+            }
+
+            self.startX = startX1;
+            self.startY = startY1;
+        },
+        touchEnd(e) {
+            this.touchMove(e);
+            this.xiangpi = false;
+        },
+        changeImg() {
+            const self = this;
+            // var feacanvas = self.$element('featurecvs')
+                request.upload({
+                    url: 'http://192.168.1.106:5000/photo',
+                    // header: { 'content-type': 'multipart/form-data' },
+                    // data: {},
+                    method: "POST",
+                    files: [{
+                        uri: '/Common/imgs/cat.png',
+                        name: 'file'
+                    }],
+                    success: function (res) {
+                        // var img = res.data;
+                        // img = img.replace('.png','')
+                        self.uriImg = '/Common/imgs/cat.png';
+                        console.log('success');
+                    },
+                    fail: function (data, code) {
+                        console.log('fail' + data + code);
+                    }
+                })
+            // var ctx = feacanvas.getContext('2d');
+            // const img = new Image();
+            // img.src = '/Common/logo.png';
+
+            // img.onload = () => {
+            //     ctx.drawImage(img, 0, 0)
+            //     console.log('logo加载成功');
+            // }
+            // img.onerror = () => { console.log('logo加载失败'); }
+        },
+        fallBack() {
+            const self = this;
+            self.xiangpi = true;
+        },
+        clearAll() {
+            const self = this;
+            var feacanvas = self.$element('featurecvs');
+            var ctx = feacanvas.getContext('2d');
+            ctx.clearRect(0, 0, 660, 800)
+        }
+    }
+</script>
+<style>
+    @import "../Common/css/common.css";
+    .div3 {
+        height: 350px;
+        width: 100%;
+        background-color: #ffffff;
+        margin-bottom: 20px;
+        border:3px solid rgba(134, 134, 134, 0.3);
+    }
+    .image {
+    }
+    .item-container {
+        height: 100%;
+        margin-top: 1px;
+        margin-right: 10px;
+        margin-left: 10px;
+        display: flex;
+        flex-direction: column;
+    }
+    .item-content {
+        flex-direction: column;
+        background-color: #ffffff;
+        padding: 10px;
+        margin-bottom: 20px;
+    }
+    .doc-row {
+        justify-content: center;
+        margin-left: 30px;
+        margin-right: 30px;
+    }
+    .homebtn {
+        flex: 1;
+        padding-top: 10px;
+        padding-right: 20px;
+        padding-bottom: 10px;
+        padding-left: 20px;
+        margin-bottom: 10px;
+        margin-left: 20px;
+        border-radius: 10px;
+        font-size: 30px;
+        color: #ffffff;
+    }
+    .homebtn1 {
+        margin-top: 15px;
+        margin-left: 20px;
+        width: 150px;
+        height: 150px;
+        border-radius: 75px;
+        font-size: 30px;
+        color: #ffffff;
+    }
+    .touch-region {
+        margin-bottom: 10px;
+        width: 680px;
+        height: 620px;
+        background-color: #fffff0;
+        justify-content: center;
+        border:3px solid rgba(134, 134, 134, 0.3);
+    }
+    .div1text {
+        font-size: 35px;
+        font-weight: bolder;
+        font-family: sans-serif;
+        margin-right: 50px;
+    }
+    .color1 {
+        background-color: #09ba07;
+    }
+    .color1:active {
+        background-color: #098807;
+    }
+    .color2 {
+        background-color: #f76160;
+    }
+    .color2:active {
+        background-color: #c55756;
+    }
+    .color3 {
+        background-color: #0faeff;
+    }
+    .color3:active {
+        background-color: #0f7dcd;
+    }
+</style>
