@@ -9,4 +9,5 @@ PictureJigsaw项目源代码两部分组成，快应用前端代码和服务器�
 <img src="https://github.com/ligecarryme/PictureJigsaw/blob/master/img/home.png" style="zoom:67%;" align="left"/>
 
 
-<img src="https://github.com/ligecarryme/PictureJigsaw/blob/master/img/.png" style="zoom:67%;" align="left"/>
+
+<img src="https://github.com/ligecarryme/PictureJigsaw/blob/master/img/feature.png" style="zoom:67%;" align="left"/>
