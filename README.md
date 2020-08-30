@@ -3,3 +3,11 @@ PictureJigsaw项目源代码两部分组成，快应用前端代码和服务器�
 前端代码入口文件：“com.darin.quickapp\src\Home\home.ux”。
 
 后端代码入口文件：“result.py”启动服务器。
+
+页面展示：
+
+<img src="E:\HuaweiWorkspace\picture-jigsaw-master\PictureJigsaw\img\home.png" style="zoom:67%;" align="left"/>
+
+
+
+<img src="E:\HuaweiWorkspace\picture-jigsaw-master\PictureJigsaw\img\feature.png" style="zoom:67%;" align="left"/>
