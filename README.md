@@ -6,8 +6,7 @@ PictureJigsaw项目源代码两部分组成，快应用前端代码和服务器�
 
 页面展示：
 
-<img src="E:\HuaweiWorkspace\picture-jigsaw-master\PictureJigsaw\img\home.png" style="zoom:67%;" align="left"/>
+<img src="https://github.com/ligecarryme/PictureJigsaw/blob/master/img/home.png" style="zoom:67%;" align="left"/>
 
 
-
-<img src="E:\HuaweiWorkspace\picture-jigsaw-master\PictureJigsaw\img\feature.png" style="zoom:67%;" align="left"/>
+<img src="https://github.com/ligecarryme/PictureJigsaw/blob/master/img/.png" style="zoom:67%;" align="left"/>
